@@ -82,6 +82,31 @@ server.post('/api/accounts', (req, res) =>
     }
 })
 
+server.put('/api/accounts/:id', (req, res) =>
+{
+    const updateAccount = {
+        name: req.body.name,
+        budget: req.body.budget
+    };
+
+    db('accounts').where({id: req.params.id}).update(updateAccount)
+    .then(count =>
+    {
+        db('accounts').where({id: req.params.id}).first()
+        .then(updatedAccount =>
+        {
+            res.status(200).json(updatedAccount);
+        })
+        .catch(error =>
+        {
+            res.status(500).json({error: 'Could not retrieve Accounts from the database'})
+        })
+    })
+    .catch(error =>
+    {
+        res.status(500).json({error: 'Could not retrieve Accounts from the database'});
+    })
+})
 server.use('/', (req, res) =>
 {
     res.json({message: 'API is running'});
