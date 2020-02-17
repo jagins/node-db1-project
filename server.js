@@ -39,6 +39,49 @@ server.get('/api/accounts/:id', (req, res) =>
     })
 })
 
+server.post('/api/accounts', (req, res) =>
+{
+    if(!req.body.name && !req.body.budget)
+    {
+        res.status(400).json({error: 'Please provide a name and budget for the Account'});
+    }
+
+    if(!req.body.name)
+    {
+        res.status(400).json({error: 'Please provide a name for the Account'});
+    }
+
+    if(!req.body.budget)
+    {
+        res.status(400).json({error: 'Please provide a budget for the Account'})
+    }
+    else
+    {
+        const newAccount = {
+            name: req.body.name,
+            budget: req.body.budget
+        }
+
+        db('accounts').insert(newAccount, 'id')
+        .then(newId =>
+        {
+           db('accounts').where({id: newId[0]}).first()
+           .then(account =>
+            {
+                res.status(201).json(account);
+            })
+           .catch(error =>
+            {
+                res.status(500).json({error: 'Could not retrieve Accounts from the database'});
+            })
+        })
+        .catch(error =>
+        {
+            res.status(500).json({error: 'Error saving new Account to the database'});
+        })
+    }
+})
+
 server.use('/', (req, res) =>
 {
     res.json({message: 'API is running'});
